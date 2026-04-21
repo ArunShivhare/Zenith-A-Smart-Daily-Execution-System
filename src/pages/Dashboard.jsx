@@ -12,8 +12,14 @@ function Dashboard() {
   const [priority, setPriority] = useState("medium");
   const [tag, setTag] = useState("study");
   const [loading, setLoading] = useState(true);
-  const [startHour, setStartHour] = useState(9);
-  const [endHour, setEndHour] = useState(21);
+  const [startHour, setStartHour] = useState(() => {
+    const saved = localStorage.getItem("startHour");
+    return saved ? Number(saved) : 9; // Default to 9 if nothing is saved
+  });
+  const [endHour, setEndHour] = useState(() => {
+    const saved = localStorage.getItem("endHour");
+    return saved ? Number(saved) : 21; // Default to 21 if nothing is saved
+  });
   const {
     tasks,
     addTask,
@@ -55,112 +61,181 @@ function Dashboard() {
     }
   }, [startHour, endHour]);
 
+  useEffect(() => {
+    localStorage.setItem("startHour", startHour);
+    localStorage.setItem("endHour", endHour);
+  }, [startHour, endHour]);
+
   if (loading) {
-    return <div className="p-4">Loading...</div>;
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50/50">
+        <div className="flex flex-col items-center gap-4">
+          {/* Modern Rounded Spinner */}
+          <div className="w-12 h-12 border-4 border-indigo-100 border-t-indigo-600 rounded-2xl animate-spin" />
+
+          {/* Subtle Text */}
+          <div className="flex flex-col items-center gap-1">
+            <p className="text-sm font-bold text-gray-700 tracking-wide uppercase">
+              Daily Manager
+            </p>
+            <p className="text-xs text-gray-400 animate-pulse font-medium">
+              Syncing your workspace...
+            </p>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="p-4 max-w-6xl mx-auto">
-      <h1 className="text-2xl font-bold mb-4">Daily Manager</h1>
+    <div className="min-h-screen bg-gray-50 p-4 md:p-8">
+      <div className="max-w-7xl mx-auto">
+        {/* Header Section */}
+        <header className="flex justify-between items-center mb-8">
+          <div>
+            <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">
+              Daily Manager
+            </h1>
+            <p className="text-gray-500 mt-1">
+              Organize your workflow and stay productive.
+            </p>
+          </div>
+          <div className="hidden md:block text-sm font-medium text-gray-400">
+            {new Date().toLocaleDateString("en-US", {
+              weekday: "long",
+              month: "long",
+              day: "numeric",
+            })}
+          </div>
+        </header>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* LEFT: Tasks */}
-        <div className="md:col-span-1">
-          <h2 className="text-lg font-semibold mb-2">Tasks</h2>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          {/* LEFT: Tasks Sidebar (4 columns) */}
+          <div className="lg:col-span-4 space-y-6">
+            <section className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+              <h2 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                <span className="w-2 h-6 bg-indigo-600 rounded-full"></span>
+                Quick Add
+              </h2>
 
-          {/* Add Task */}
-          <div className="flex flex-col gap-2 mb-4">
-            <input
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="Enter task..."
-              className="border p-2 rounded"
-            />
+              <div className="space-y-3">
+                <input
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder="What needs to be done?"
+                  className="w-full border-gray-200 border p-3 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all outline-none"
+                />
 
-            <div className="flex gap-2">
-              <select
-                value={priority}
-                onChange={(e) => setPriority(e.target.value)}
-                className="border p-2 rounded"
-              >
-                <option value="low">Low</option>
-                <option value="medium">Medium</option>
-                <option value="high">High</option>
-              </select>
+                <div className="flex gap-2">
+                  <select
+                    value={priority}
+                    onChange={(e) => setPriority(e.target.value)}
+                    className="flex-1 bg-gray-50 border-none p-2.5 rounded-lg text-sm font-medium text-gray-600 cursor-pointer hover:bg-gray-100 transition"
+                  >
+                    <option value="low">Low</option>
+                    <option value="medium">Medium</option>
+                    <option value="high">High</option>
+                  </select>
 
-              <select
-                value={tag}
-                onChange={(e) => setTag(e.target.value)}
-                className="border p-2 rounded"
-              >
-                <option value="study">Study</option>
-                <option value="fitness">Fitness</option>
-                <option value="work">Work</option>
-              </select>
+                  <select
+                    value={tag}
+                    onChange={(e) => setTag(e.target.value)}
+                    className="flex-1 bg-gray-50 border-none p-2.5 rounded-lg text-sm font-medium text-gray-600 cursor-pointer hover:bg-gray-100 transition"
+                  >
+                    <option value="study">Study</option>
+                    <option value="fitness">Fitness</option>
+                    <option value="work">Work</option>
+                  </select>
+                </div>
 
-              <button
-                onClick={handleAdd}
-                className="bg-black text-white px-4 rounded"
-              >
-                Add
-              </button>
+                <button
+                  onClick={handleAdd}
+                  className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded-xl transition-all shadow-lg shadow-indigo-100 active:scale-[0.98]"
+                >
+                  Add Task
+                </button>
+              </div>
+            </section>
+
+            {/* Task List */}
+            <div className="space-y-3">
+              <div className="flex justify-between items-center px-1">
+                <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider">
+                  Inbox
+                </h3>
+                <span className="bg-gray-200 text-gray-600 text-xs px-2 py-0.5 rounded-full font-bold">
+                  {tasks.length}
+                </span>
+              </div>
+
+              {tasks.length === 0 ? (
+                <div className="text-center py-10 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200">
+                  <p className="text-sm text-gray-400">All caught up!</p>
+                </div>
+              ) : (
+                <div className="space-y-3 max-h-125 overflow-y-auto pr-2 custom-scrollbar">
+                  {tasks.map((task) => (
+                    <TaskCard
+                      key={task._id}
+                      task={task}
+                      onDelete={deleteTask}
+                      onToggle={toggleTask}
+                      onSchedule={scheduleTask}
+                      onUpdate={updateTask}
+                      onUnschedule={unscheduleTask}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
           </div>
 
-          {tasks.length === 0 && (
-            <p className="text-sm text-gray-400">No tasks yet</p>
-          )}
+          {/* RIGHT: Planner (8 columns) */}
+          <div className="lg:col-span-8">
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 min-h-150">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+                <h2 className="text-xl font-bold text-gray-800">
+                  Daily Timeline
+                </h2>
 
-          <div className="space-y-3">
-            {tasks.map((task) => (
-              <TaskCard
-                key={task._id}
-                task={task}
-                onDelete={deleteTask}
-                onToggle={toggleTask}
-                onSchedule={scheduleTask}
-                onUpdate={updateTask}
-                onUnschedule={unscheduleTask}
-              />
-            ))}
+                {/* Time Controls */}
+                <div className="flex items-center gap-2 bg-gray-50 p-1.5 rounded-xl border border-gray-100">
+                  <select
+                    value={startHour}
+                    onChange={(e) => setStartHour(Number(e.target.value))}
+                    className="bg-transparent text-sm font-semibold text-gray-600 focus:outline-none p-1"
+                  >
+                    {Array.from({ length: 24 }, (_, i) => (
+                      <option key={i} value={i}>
+                        {i}:00
+                      </option>
+                    ))}
+                  </select>
+                  <span className="text-gray-300">to</span>
+                  <select
+                    value={endHour}
+                    onChange={(e) => setEndHour(Number(e.target.value))}
+                    className="bg-transparent text-sm font-semibold text-gray-600 focus:outline-none p-1"
+                  >
+                    {Array.from({ length: 24 }, (_, i) => (
+                      <option key={i} value={i}>
+                        {i}:00
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="rounded-xl overflow-hidden border border-gray-50">
+                <Planner
+                  tasks={tasks}
+                  onSchedule={scheduleTask}
+                  startHour={startHour}
+                  endHour={endHour}
+                />
+              </div>
+            </div>
           </div>
-        </div>
-
-        {/* RIGHT: Planner */}
-        <div className="md:col-span-2">
-          {/* Time Controls */}
-          <div className="flex gap-3 mb-3">
-            <select
-              value={startHour}
-              onChange={(e) => setStartHour(Number(e.target.value))}
-              className="border p-2 rounded"
-            >
-              {Array.from({ length: 24 }, (_, i) => (
-                <option key={i} value={i}>
-                  Start: {i}:00
-                </option>
-              ))}
-            </select>
-
-            <select
-              value={endHour}
-              onChange={(e) => setEndHour(Number(e.target.value))}
-              className="border p-2 rounded"
-            >
-              {Array.from({ length: 24 }, (_, i) => (
-                <option key={i} value={i}>
-                  End: {i}:00
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <Planner
-            tasks={tasks}
-            onSchedule={scheduleTask}
-            startHour={startHour}
-            endHour={endHour}
-          />
         </div>
       </div>
     </div>
