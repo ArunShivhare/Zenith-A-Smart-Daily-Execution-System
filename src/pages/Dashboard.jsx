@@ -6,17 +6,19 @@ import Planner from "../components/Planner";
 function Dashboard() {
   const { tasks, addTask, deleteTask, toggleTask, scheduleTask } = useTasks();
   const [title, setTitle] = useState("");
+  const [priority, setPriority] = useState("medium");
 
-  const handleAdd = () => {
-    if (!title) return;
+const handleAdd = () => {
+  if (!title) return;
 
-    addTask({
-      title,
-      priority: "medium",
-    });
+  addTask({
+    title,
+    priority,
+  });
 
-    setTitle("");
-  };
+  setTitle("");
+  setPriority("medium");
+};
 
   return (
     <div className="p-4 max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -32,6 +34,17 @@ function Dashboard() {
             placeholder="Enter task..."
             className="border p-2 flex-1 rounded"
           />
+
+          <select
+            value={priority}
+            onChange={(e) => setPriority(e.target.value)}
+            className="border p-2 rounded"
+          >
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+          </select>
+
           <button
             onClick={handleAdd}
             className="bg-black text-white px-4 rounded"

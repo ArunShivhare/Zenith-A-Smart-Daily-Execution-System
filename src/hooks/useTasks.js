@@ -23,45 +23,48 @@ export default function useTasks() {
   };
 
   const deleteTask = async (id) => {
-  try {
-    await API.delete(`/tasks/${id}`);
-    setTasks((prev) => prev.filter((t) => t._id !== id));
-  } catch (err) {
-    console.error(err);
-  }
-};
+    try {
+      await API.delete(`/tasks/${id}`);
+      setTasks((prev) => prev.filter((t) => t._id !== id));
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
-const toggleTask = async (task) => {
-  try {
-    const updated = await API.put(`/tasks/${task._id}`, {
-      status: task.status === "completed" ? "pending" : "completed",
-    });
+  const toggleTask = async (task) => {
+    try {
+      const updated = await API.put(`/tasks/${task._id}`, {
+        status: task.status === "completed" ? "pending" : "completed",
+      });
 
-    setTasks((prev) =>
-      prev.map((t) => (t._id === task._id ? updated.data : t))
-    );
-  } catch (err) {
-    console.error(err);
-  }
-};
+      setTasks((prev) =>
+        prev.map((t) => (t._id === task._id ? updated.data : t)),
+      );
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
-const scheduleTask = async (task, hour) => {
-  try {
-    const date = new Date();
-    date.setHours(hour);
-    date.setMinutes(0);
+  const scheduleTask = async (task, hour) => {
+    try {
+      const date = new Date();
+      date.setHours(hour);
+      date.setMinutes(0);
 
-    const res = await API.put(`/tasks/${task._id}`, {
-      scheduledTime: date,
-    });
+      const res = await API.put(`/tasks/${task._id}`, {
+        scheduledTime: date,
+      });
 
-    setTasks((prev) =>
-      prev.map((t) => (t._id === task._id ? res.data : t))
-    );
-  } catch (err) {
-    console.error(err);
-  }
-};
+      setTasks(
+        res.data.sort((a, b) => {
+          const order = { high: 3, medium: 2, low: 1 };
+          return order[b.priority] - order[a.priority];
+        }),
+      );
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   useEffect(() => {
     fetchTasks();

@@ -1,8 +1,9 @@
 function TaskCard({ task, onDelete, onToggle, onSchedule }) {
-  const getPriorityColor = () => {
-    if (task.priority === "high") return "text-red-500";
-    if (task.priority === "medium") return "text-yellow-500";
-    return "text-green-500";
+  
+  const getPriorityStyles = () => {
+    if (task.priority === "high") return "bg-red-100 text-red-600";
+    if (task.priority === "medium") return "bg-yellow-100 text-yellow-600";
+    return "bg-green-100 text-green-600";
   };
 
   return (
@@ -17,7 +18,9 @@ function TaskCard({ task, onDelete, onToggle, onSchedule }) {
           {task.title}
         </p>
 
-        <span className={`text-xs ${getPriorityColor()}`}>{task.priority}</span>
+        <span className={`text-xs px-2 py-1 rounded ${getPriorityStyles()}`}>
+          {task.priority}
+        </span>
       </div>
 
       {/* Right */}
