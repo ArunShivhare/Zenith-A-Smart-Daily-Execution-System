@@ -25,9 +25,6 @@ function Login() {
 
       console.log(res.data);
 
-      // Step 4: Save token (temporary)
-      localStorage.setItem("token", token);
-
       // Step 5: Redirect
       navigate("/dashboard");
     } catch (error) {

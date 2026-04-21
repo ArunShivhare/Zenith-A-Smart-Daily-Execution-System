@@ -2,18 +2,25 @@ import { DndContext } from "@dnd-kit/core";
 import DraggableTask from "./DraggableTask";
 import TimeSlot from "./TimeSlot";
 
-const hours = Array.from({ length: 12 }, (_, i) => i + 9);
+function Planner({ tasks, onSchedule, startHour, endHour }) {
+  const hours = Array.from(
+    { length: endHour - startHour },
+    (_, i) => i + startHour,
+  );
 
-function Planner({ tasks, onSchedule }) {
+  const formatHour = (h) =>
+    h > 12 ? `${h - 12} PM` : h === 12 ? "12 PM" : `${h} AM`;
+
   const unscheduledTasks = tasks.filter((t) => !t.scheduledTime);
 
-  const getTasksForHour = (hour) => {
-    return tasks.filter((t) => {
-      if (!t.scheduledTime) return false;
-      const date = new Date(t.scheduledTime);
-      return date.getHours() === hour;
-    });
-  };
+const getTasksForHour = (hour) => {
+  return tasks.filter((t) => {
+    if (!t.scheduledTime) return false;
+
+    const taskHour = new Date(t.scheduledTime).getHours();
+    return Number(taskHour) === Number(hour);
+  });
+};
 
   const handleDragEnd = (event) => {
     const { active, over } = event;
@@ -32,7 +39,6 @@ function Planner({ tasks, onSchedule }) {
   return (
     <DndContext onDragEnd={handleDragEnd}>
       <div className="grid grid-cols-2 gap-4">
-
         {/* LEFT: Tasks */}
         <div className="border p-3 rounded bg-white">
           <h2 className="font-semibold mb-3">Tasks</h2>
@@ -48,7 +54,7 @@ function Planner({ tasks, onSchedule }) {
 
           <div className="space-y-2">
             {hours.map((hour) => (
-              <TimeSlot key={hour} hour={hour}>
+              <TimeSlot key={hour} hour={hour} formatHour={formatHour}>
                 {getTasksForHour(hour).map((task) => (
                   <div
                     key={task._id}
@@ -61,7 +67,6 @@ function Planner({ tasks, onSchedule }) {
             ))}
           </div>
         </div>
-
       </div>
     </DndContext>
   );

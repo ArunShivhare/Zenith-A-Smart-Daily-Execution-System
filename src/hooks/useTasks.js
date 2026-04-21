@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import API from "../services/api";
 
-export default function useTasks() {
+export default function useTasks(userReady) {
   const [tasks, setTasks] = useState([]);
 
   const fetchTasks = async () => {
@@ -45,30 +45,58 @@ export default function useTasks() {
     }
   };
 
-  const scheduleTask = async (task, hour) => {
+ const scheduleTask = async (task, hour) => {
+  try {
+    const date = new Date();
+    date.setHours(hour);
+    date.setMinutes(0);
+
+    const res = await API.put(`/tasks/${task._id}`, {
+      scheduledTime: date,
+    });
+
+    // 🔥 Force proper update
+    setTasks((prev) =>
+      prev.map((t) =>
+        t._id === task._id
+          ? { ...res.data } // ensure new reference
+          : t
+      )
+    );
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+  const updateTask = async (id, data) => {
     try {
-      const date = new Date();
-      date.setHours(hour);
-      date.setMinutes(0);
+      const res = await API.put(`/tasks/${id}`, data);
 
-      const res = await API.put(`/tasks/${task._id}`, {
-        scheduledTime: date,
-      });
-
-      setTasks(
-        res.data.sort((a, b) => {
-          const order = { high: 3, medium: 2, low: 1 };
-          return order[b.priority] - order[a.priority];
-        }),
-      );
+      setTasks((prev) => prev.map((t) => (t._id === id ? res.data : t)));
     } catch (err) {
       console.error(err);
     }
   };
 
-  useEffect(() => {
-    fetchTasks();
-  }, []);
+  const unscheduleTask = async (task) => {
+  try {
+    const res = await API.put(`/tasks/${task._id}`, {
+      scheduledTime: null,
+    });
 
-  return { tasks, addTask, fetchTasks, deleteTask, toggleTask, scheduleTask };
+    setTasks((prev) =>
+      prev.map((t) => (t._id === task._id ? res.data : t))
+    );
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+  useEffect(() => {
+    if (userReady) {
+      fetchTasks();
+    }
+  }, [userReady]);
+
+  return { tasks, addTask, fetchTasks, deleteTask, toggleTask, scheduleTask, updateTask, unscheduleTask };
 }
