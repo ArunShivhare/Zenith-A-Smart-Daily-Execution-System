@@ -5,15 +5,13 @@ import Planner from "../components/Planner";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { auth } from "../services/firebase";
-import FocusMode from "../components/FocusMode";
 
-function Dashboard() {
+function Dashboard({ setActiveTask }) {
   const navigate = useNavigate();
   const [title, setTitle] = useState("");
   const [priority, setPriority] = useState("medium");
   const [tag, setTag] = useState("study");
   const [loading, setLoading] = useState(true);
-  const [activeTask, setActiveTask] = useState(null);
   const [startHour, setStartHour] = useState(() => {
     const saved = localStorage.getItem("startHour");
     return saved ? Number(saved) : 9; // Default to 9 if nothing is saved
@@ -241,9 +239,6 @@ function Dashboard() {
           </div>
         </div>
       </div>
-      {activeTask && (
-        <FocusMode task={activeTask} onExit={() => setActiveTask(null)} />
-      )}
     </div>
   );
 }

@@ -40,50 +40,62 @@ function FocusMode({ task, onExit }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-[#0F172A] text-white flex flex-col items-center justify-center transition-all duration-700">
-      {/* Background Glow Effect */}
-      <div className={`absolute w-125 h-125 rounded-full blur-[120px] transition-colors duration-1000 ${isRunning ? "bg-indigo-900/30" : "bg-red-900/20"}`} />
+    <div className="fixed inset-0 bg-gray-50 flex flex-col items-center justify-center transition-all duration-500 z-100">
+      {/* Soft Ambient Background Glow */}
+      <div className={`absolute w-150 h-150 rounded-full blur-[120px] transition-colors duration-1000 opacity-40 ${isRunning ? "bg-indigo-200" : "bg-gray-200"}`} />
 
-      <div className="relative z-10 flex flex-col items-center max-w-md w-full px-6">
+      <div className="relative z-10 flex flex-col items-center max-w-xl w-full px-6">
         {/* Header Section */}
-        <div className="text-center mb-12">
-          <p className="text-indigo-400 font-bold uppercase tracking-[0.2em] text-[10px] mb-2">Current Focus</p>
-          <h2 className="text-2xl font-bold tracking-tight text-gray-100">{task.title}</h2>
+        <div className="text-center mb-8">
+          <span className="inline-block px-3 py-1 bg-indigo-50 text-indigo-600 font-bold uppercase tracking-widest text-[10px] rounded-full mb-4">
+            Focus Session
+          </span>
+          <h2 className="text-4xl font-extrabold tracking-tight text-gray-900 mb-2">
+            {task?.title || "Focus Session"}
+          </h2>
+          <p className="text-gray-400 font-medium italic">Stay in the flow.</p>
         </div>
 
-        {/* Big Timer Display */}
-        <div className="relative flex items-center justify-center mb-12 group">
-          <div className="text-[120px] font-black tracking-tighter leading-none select-none tabular-nums">
+        {/* Hero Timer Display */}
+        <div className="relative flex flex-col items-center justify-center mb-8">
+          <div className="text-[160px] font-black tracking-tighter leading-none select-none tabular-nums text-gray-900">
             {formatTime()}
+          </div>
+          {/* Progress Ring Subtly hidden or used as a bar */}
+          <div className="w-full max-w-75 h-1.5 bg-gray-200 rounded-full mt-8 overflow-hidden">
+             <div 
+                className="h-full bg-indigo-600 transition-all duration-1000 ease-linear" 
+                style={{ width: `${(time / (duration * 60)) * 100}%` }}
+             />
           </div>
         </div>
 
-        {/* Duration Selectors */}
-        <div className="flex gap-3 mb-10 bg-white/5 p-1.5 rounded-2xl border border-white/10">
+        {/* Duration Controls */}
+        <div className="flex gap-2 mb-12 bg-white p-2 rounded-2xl shadow-sm border border-gray-100">
           {[25, 45, 60].map((min) => (
             <button
               key={min}
               onClick={() => setDuration(min)}
-              className={`px-4 py-2 rounded-xl text-sm font-bold transition-all ${duration === min ? "bg-white text-black shadow-lg" : "text-gray-400 hover:text-white"}`}
+              className={`px-6 py-2 rounded-xl text-sm font-bold transition-all ${duration === min ? "bg-indigo-600 text-white shadow-lg shadow-indigo-100" : "text-gray-400 hover:bg-gray-50"}`}
             >
               {min}m
             </button>
           ))}
         </div>
 
-        {/* Main Controls */}
-        <div className="flex gap-4 mb-8">
+        {/* Action Controls */}
+        <div className="flex items-center gap-6 mb-12">
           {!isRunning ? (
             <button
               onClick={() => setIsRunning(true)}
-              className="px-10 py-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl font-bold text-lg transition-all shadow-xl shadow-indigo-900/40 active:scale-95"
+              className="px-12 py-5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-3xl font-bold text-xl transition-all shadow-xl shadow-indigo-100 active:scale-95"
             >
-              Start Session
+              Start Focus
             </button>
           ) : (
             <button
               onClick={() => setIsRunning(false)}
-              className="px-10 py-4 bg-white/10 hover:bg-white/20 text-white rounded-2xl font-bold text-lg transition-all border border-white/10 active:scale-95"
+              className="px-12 py-5 bg-white border-2 border-gray-100 text-gray-700 rounded-3xl font-bold text-xl transition-all hover:bg-gray-50 active:scale-95 shadow-sm"
             >
               Pause
             </button>
@@ -91,7 +103,7 @@ function FocusMode({ task, onExit }) {
 
           <button
             onClick={() => { setTime(duration * 60); setIsRunning(false); }}
-            className="p-4 bg-white/5 hover:bg-white/10 text-gray-300 rounded-2xl transition-all border border-white/5"
+            className="p-5 bg-white border border-gray-100 text-gray-400 hover:text-indigo-600 rounded-3xl transition-all shadow-sm hover:shadow-md"
             title="Reset"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -100,19 +112,17 @@ function FocusMode({ task, onExit }) {
           </button>
         </div>
 
-        {/* Footer Stats */}
-        <div className="flex items-center gap-4 text-gray-500 mb-12">
-          <div className="flex flex-col items-center">
-            <span className="text-xs font-bold uppercase tracking-widest text-gray-600 mb-1">Sessions</span>
-            <span className="text-xl font-bold text-indigo-400">{sessions}</span>
-          </div>
+        {/* Sessions Counter */}
+        <div className="flex items-center gap-2 text-gray-400 font-bold text-xs uppercase tracking-widest bg-white px-4 py-2 rounded-full border border-gray-100 shadow-sm mb-12">
+          <span>Sessions Completed</span>
+          <span className="w-6 h-6 flex items-center justify-center bg-indigo-600 text-white rounded-full text-[10px] ml-1">{sessions}</span>
         </div>
 
         <button 
           onClick={onExit} 
-          className="text-gray-500 hover:text-red-400 text-sm font-bold transition-colors py-2 px-4 hover:bg-red-400/10 rounded-xl"
+          className="text-gray-400 hover:text-red-500 text-xs font-bold uppercase tracking-widest transition-colors py-2 px-6 rounded-xl hover:bg-red-50"
         >
-          End Focus Mode
+          Exit Focus Mode
         </button>
       </div>
     </div>
