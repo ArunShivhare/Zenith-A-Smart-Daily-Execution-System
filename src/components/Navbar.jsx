@@ -21,7 +21,7 @@ function Navbar({ onFocus }) {
       {/* Left: Logo */}
       <div className="flex items-center gap-2">
         <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center shadow-indigo-200 shadow-lg">
-          <Zap size={18} className="text-white fill-current" />
+            <img className="w-5 h-5 invert-100" src="zenith.png" alt="Zenith Logo" />
         </div>
         <h1 className="text-xl font-extrabold tracking-tighter text-gray-900">
           Zenith

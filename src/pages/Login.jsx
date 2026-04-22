@@ -28,8 +28,8 @@ function Login() {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
       <div className="max-w-md w-full bg-white rounded-3xl shadow-xl shadow-gray-200/50 border border-gray-100 p-8 md:p-12 text-center">
         {/* Logo/Icon Placeholder */}
-        <div className="w-16 h-16 bg-indigo-600 rounded-2xl mx-auto mb-6 flex items-center justify-center shadow-lg shadow-indigo-200">
-          <span className="text-white text-2xl font-bold">DM</span>
+        <div className="w-18 h-18 bg-indigo-600 rounded-2xl mx-auto mb-6 flex items-center justify-center shadow-lg shadow-indigo-200">
+          <span className="text-white text-2xl w-12 font-bold"><img className="invert-100 w-full h-full object-contain" src="zenith.png" alt="Zenith Logo" /></span>
         </div>
 
         <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight mb-2">
