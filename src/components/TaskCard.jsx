@@ -1,12 +1,22 @@
 import { useState } from "react";
 
-function TaskCard({ task, onDelete, onToggle, onSchedule, onUpdate, onUnschedule }) {
+function TaskCard({
+  task,
+  onDelete,
+  onToggle,
+  onSchedule,
+  onUpdate,
+  onUnschedule,
+  onFocus,
+}) {
   const [isEditing, setIsEditing] = useState(false);
   const [newTitle, setNewTitle] = useState(task.title);
 
   const getPriorityStyles = () => {
-    if (task.priority === "high") return "bg-red-50 text-red-600 border-red-100";
-    if (task.priority === "medium") return "bg-amber-50 text-amber-600 border-amber-100";
+    if (task.priority === "high")
+      return "bg-red-50 text-red-600 border-red-100";
+    if (task.priority === "medium")
+      return "bg-amber-50 text-amber-600 border-amber-100";
     return "bg-emerald-50 text-emerald-600 border-emerald-100";
   };
 
@@ -29,20 +39,27 @@ function TaskCard({ task, onDelete, onToggle, onSchedule, onUpdate, onUnschedule
               autoFocus
             />
             <button
-              onClick={() => { onUpdate(task._id, { title: newTitle }); setIsEditing(false); }}
+              onClick={() => {
+                onUpdate(task._id, { title: newTitle });
+                setIsEditing(false);
+              }}
               className="px-4 py-1 bg-indigo-600 text-white text-xs font-bold rounded-lg hover:bg-indigo-700"
             >
               Save
             </button>
           </div>
         ) : (
-          <p className={`text-base font-bold text-gray-800 ${task.status === "completed" ? "line-through text-gray-400" : ""}`}>
+          <p
+            className={`text-base font-bold text-gray-800 ${task.status === "completed" ? "line-through text-gray-400" : ""}`}
+          >
             {task.title}
           </p>
         )}
 
         <div className="flex flex-wrap gap-2 mt-3">
-          <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-md border ${getPriorityStyles()}`}>
+          <span
+            className={`text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-md border ${getPriorityStyles()}`}
+          >
             {task.priority}
           </span>
           {task.tags?.map((tag, i) => (
@@ -53,6 +70,12 @@ function TaskCard({ task, onDelete, onToggle, onSchedule, onUpdate, onUnschedule
               {tag}
             </span>
           ))}
+          <button
+            onClick={() => onFocus(task)}
+          className={`text-[10px] cursor-pointer font-bold uppercase tracking-wider px-2 py-1 rounded-md bg-indigo-50 text-indigo-600 hover:bg-indigo-100 transition-colors`}
+            >
+            Focus
+          </button>
         </div>
       </div>
 
