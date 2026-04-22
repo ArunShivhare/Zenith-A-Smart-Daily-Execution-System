@@ -11,22 +11,40 @@ function FocusMode({ task, onExit }) {
     audio.play().catch(() => console.log("Sound enabled after user interaction"));
   };
 
+  // useEffect(() => {
+  //   if (!isRunning) return;
+  //   const interval = setInterval(() => {
+  //     setTime((prev) => {
+  //       if (prev <= 1) {
+  //         clearInterval(interval);
+  //         setIsRunning(false);
+  //         setSessions((s) => s + 1);
+  //         playSound();
+  //         return 0;
+  //       }
+  //       return prev - 1;
+  //     });
+  //   }, 1000);
+  //   return () => clearInterval(interval);
+  // }, [isRunning]);
+
   useEffect(() => {
-    if (!isRunning) return;
-    const interval = setInterval(() => {
-      setTime((prev) => {
-        if (prev <= 1) {
-          clearInterval(interval);
-          setIsRunning(false);
-          setSessions((s) => s + 1);
-          playSound();
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [isRunning]);
+  if (!isRunning) return;
+
+  const interval = setInterval(() => {
+    setTime((prev) => (prev > 0 ? prev - 1 : 0));
+  }, 1000);
+
+  return () => clearInterval(interval);
+}, [isRunning]);
+
+useEffect(() => {
+  if (time === 0 && isRunning) {
+    setIsRunning(false);
+    setSessions((s) => s + 1);
+    playSound();
+  }
+}, [time, isRunning]);
 
   useEffect(() => {
     setTime(duration * 60);
