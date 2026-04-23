@@ -9,23 +9,28 @@ import { useNavigate } from "react-router-dom";
 import { auth } from "./services/firebase";
 import DailyReview from "./pages/DailyReview";
 import Analytics from "./pages/Analytics";
+import { onAuthStateChanged } from "firebase/auth";
 
 function App() {
   const [activeTask, setActiveTask] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [userReady, setUserReady] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
-      if (!user) {
-        navigate("/");
-      } else {
-        setLoading(false); // ✅ user ready
-      }
-    });
+  const unsubscribe = onAuthStateChanged(auth, (user) => {
 
-    return () => unsubscribe();
-  }, [navigate]);
+    if (!user) {
+      navigate("/");
+    }
+
+    // ✅ BOTH STATES FIXED HERE
+    setUserReady(true);
+    setLoading(false);
+  });
+
+  return () => unsubscribe();
+}, [navigate]);
 
   if (loading) {
     return (
@@ -65,12 +70,12 @@ function App() {
               <Routes>
                 <Route
                   path="/dashboard"
-                  element={<Dashboard setActiveTask={setActiveTask} />}
+                  element={<Dashboard setActiveTask={setActiveTask} userReady={userReady}/>}
                 />
 
-                <Route path="/review" element={<DailyReview />} />
-                <Route path="/habits" element={<Habits />} />
-                <Route path="/analytics" element={<Analytics />} />
+                <Route path="/review" element={<DailyReview userReady={userReady}/>} />
+                <Route path="/habits" element={<Habits userReady={userReady}/>} />
+                <Route path="/analytics" element={<Analytics userReady={userReady}/>} />
               </Routes>
             </>
           }
