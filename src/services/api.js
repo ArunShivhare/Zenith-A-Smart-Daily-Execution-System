@@ -2,7 +2,7 @@ import axios from "axios";
 import { auth } from "./firebase";
 
 const API = axios.create({
-  baseURL: "http://localhost:5000/api",
+  baseURL: "https://zenith-backend-iydz.onrender.com/api",
 });
 
 API.interceptors.request.use(async (req) => {

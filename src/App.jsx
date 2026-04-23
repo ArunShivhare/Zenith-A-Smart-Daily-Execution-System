@@ -7,25 +7,27 @@ import { useState, useEffect } from "react";
 import FocusMode from "./components/FocusMode";
 import { useNavigate } from "react-router-dom";
 import { auth } from "./services/firebase";
+import DailyReview from "./pages/DailyReview";
+import Analytics from "./pages/Analytics";
 
 function App() {
   const [activeTask, setActiveTask] = useState(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-    useEffect(() => {
-      const unsubscribe = auth.onAuthStateChanged((user) => {
-        if (!user) {
-          navigate("/");
-        } else {
-          setLoading(false); // ✅ user ready
-        }
-      });
-  
-      return () => unsubscribe();
-    }, [navigate]);
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (!user) {
+        navigate("/");
+      } else {
+        setLoading(false); // ✅ user ready
+      }
+    });
 
-    if (loading) {
+    return () => unsubscribe();
+  }, [navigate]);
+
+  if (loading) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50/50">
         <div className="flex flex-col items-center gap-4">
@@ -65,7 +67,10 @@ function App() {
                   path="/dashboard"
                   element={<Dashboard setActiveTask={setActiveTask} />}
                 />
+
+                <Route path="/review" element={<DailyReview />} />
                 <Route path="/habits" element={<Habits />} />
+                <Route path="/analytics" element={<Analytics />} />
               </Routes>
             </>
           }
@@ -74,7 +79,7 @@ function App() {
       {activeTask && (
         <FocusMode task={activeTask} onExit={() => setActiveTask(null)} />
       )}
-      </>
+    </>
   );
 }
 
