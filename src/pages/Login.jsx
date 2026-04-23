@@ -13,7 +13,7 @@ function Login() {
       const result = await signInWithPopup(auth, provider);
       const token = await result.user.getIdToken();
 
-      const res = await axios.get("http://localhost:5000/protected", {
+      const res = await axios.get("https://zenith-backend-iydz.onrender.com/protected", {
         headers: { Authorization: `Bearer ${token}` },
       });
 
