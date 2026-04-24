@@ -2,10 +2,9 @@ import Navbar from "./components/Navbar";
 import Dashboard from "./pages/Dashboard";
 import Habits from "./pages/Habits";
 import Login from "./pages/Login";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import FocusMode from "./components/FocusMode";
-import { useNavigate } from "react-router-dom";
 import { auth } from "./services/firebase";
 import DailyReview from "./pages/DailyReview";
 import Analytics from "./pages/Analytics";
@@ -13,25 +12,19 @@ import { onAuthStateChanged } from "firebase/auth";
 
 function App() {
   const [activeTask, setActiveTask] = useState(null);
+  const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [userReady, setUserReady] = useState(false);
-  const navigate = useNavigate();
 
   useEffect(() => {
-  const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthStateChanged(auth, (u) => {
+      setUser(u);
+      setLoading(false);
+    });
 
-    if (!user) {
-      navigate("/");
-    }
+    return () => unsubscribe();
+  }, []);
 
-    // ✅ BOTH STATES FIXED HERE
-    setUserReady(true);
-    setLoading(false);
-  });
-
-  return () => unsubscribe();
-}, [navigate]);
-
+  // 🔥 WAIT until Firebase finishes checking
   if (loading) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50/50">
@@ -52,35 +45,74 @@ function App() {
       </div>
     );
   }
+
   return (
     <>
-      {/* Navbar always visible except login */}
       <Routes>
-        <Route path="/" element={<Login />} />
+        {/* LOGIN ROUTE */}
+        <Route
+          path="/"
+          element={user ? <Navigate to="/dashboard" /> : <Login />}
+        />
+
+        {/* PROTECTED ROUTES */}
+        <Route
+          path="/dashboard"
+          element={
+            user ? (
+              <>
+                <Navbar onFocus={() => setActiveTask({ title: "Focus" })} />
+                <Dashboard setActiveTask={setActiveTask} userReady={true} />
+              </>
+            ) : (
+              <Navigate to="/" />
+            )
+          }
+        />
 
         <Route
-          path="*"
+          path="/habits"
           element={
-            <>
-              <Navbar
-                onFocus={() =>
-                  setActiveTask({ title: "General Focus Session" })
-                }
-              />
-              <Routes>
-                <Route
-                  path="/dashboard"
-                  element={<Dashboard setActiveTask={setActiveTask} userReady={userReady}/>}
-                />
+            user ? (
+              <>
+                <Navbar onFocus={() => setActiveTask({ title: "Focus" })} />
+                <Habits userReady={true} />
+              </>
+            ) : (
+              <Navigate to="/" />
+            )
+          }
+        />
 
-                <Route path="/review" element={<DailyReview userReady={userReady}/>} />
-                <Route path="/habits" element={<Habits userReady={userReady}/>} />
-                <Route path="/analytics" element={<Analytics userReady={userReady}/>} />
-              </Routes>
-            </>
+        <Route
+          path="/review"
+          element={
+            user ? (
+              <>
+                <Navbar onFocus={() => setActiveTask({ title: "Focus" })} />
+                <DailyReview userReady={true} />
+              </>
+            ) : (
+              <Navigate to="/" />
+            )
+          }
+        />
+
+        <Route
+          path="/analytics"
+          element={
+            user ? (
+              <>
+                <Navbar onFocus={() => setActiveTask({ title: "Focus" })} />
+                <Analytics userReady={true} />
+              </>
+            ) : (
+              <Navigate to="/" />
+            )
           }
         />
       </Routes>
+
       {activeTask && (
         <FocusMode task={activeTask} onExit={() => setActiveTask(null)} />
       )}
